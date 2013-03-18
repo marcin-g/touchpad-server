@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using touchpad_server.Controller;
 using touchpad_server.IO;
 
 namespace touchpad_server
@@ -24,12 +25,14 @@ namespace touchpad_server
     {
 
         private readonly BackgroundWorker worker = new BackgroundWorker();
-        private readonly SocketConnection connection=new SocketConnection();
+        private readonly SocketConnection connection = new SocketConnection();
+        private readonly FrameInterpreter interpreter = new FrameInterpreter();
         public MainWindow()
         {
             InitializeComponent();
             worker.DoWork += worker_DoWork;
             worker.RunWorkerCompleted += worker_RunWorkerCompleted;
+            interpreter.BeginProccessing();
         }
 
         private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -47,5 +50,6 @@ namespace touchpad_server
         {
             worker.RunWorkerAsync();
         }
+        
     }
 }

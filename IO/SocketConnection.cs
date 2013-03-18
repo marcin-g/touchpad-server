@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using touchpad_server.Controller;
+using touchpad_server.DataModel;
 
 namespace touchpad_server.IO
 {
@@ -56,45 +58,40 @@ namespace touchpad_server.IO
             Console.WriteLine("Accept Connection");
             // Signal the main thread to continue.
             allDone.Set();
-
-            Console.WriteLine("Accept Connection2");
             // Create the state object.
-            StateObject state = new StateObject();
-            state.WorkSocket = handler;
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                new AsyncCallback(SocketConnection.readCallback), state);
+            SocketClient client = new SocketClient();
+            client.WorkSocket = handler;
+            handler.BeginReceive(client.Buffer, 0, SocketClient.BufferSize, 0,
+                new AsyncCallback(SocketConnection.readCallback), client);
         }
         public static void readCallback(IAsyncResult ar)
         {
-            StateObject state = (StateObject)ar.AsyncState;
+            SocketClient state = (SocketClient)ar.AsyncState;
             Socket handler = state.WorkSocket;
 
             // Read data from the client socket.
             int read = handler.EndReceive(ar);
-
-            Console.WriteLine("Read");
             // Data was read from the client socket.
             if (read > 0)
             {
-                Console.WriteLine("Read1");
-                state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
-                handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                    new AsyncCallback(readCallback), state);
-                Console.WriteLine("Read {0} bytes from socket.\n Data : {1}",
-                      state.sb.Length, state.sb);
+                byte[] tmp=new byte[read-2];
+                Array.Copy(state.Buffer,2,tmp,0,read-2);
+                StandardFrame frame=new StandardFrame(state.Buffer[0],(FrameType)((int) state.Buffer[1]),tmp);
+                FrameInterpreter.AddFrame(frame);
+              //  state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
+             /*   handler.BeginReceive(state.Buffer, 0, SocketClient.BufferSize, 0,
+                    new AsyncCallback(readCallback), state);*/
             }
             else
             {
-
-                Console.WriteLine("Read2");
-                if (state.sb.Length > 1)
+               /* if (state.sb.Length > 1)
                 {
                     // All the data has been read from the client;
                     // display it on the console.
                     string content = state.sb.ToString();
                     Console.WriteLine("Read {0} bytes from socket.\n Data : {1}",
                        content.Length, content);
-                }
+                }*/
                 handler.Close();
             }
         }

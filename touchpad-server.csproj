@@ -53,6 +53,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controller\FrameInterpreter.cs" />
+    <Compile Include="Controller\MouseController.cs" />
+    <Compile Include="DataModel\StandardFrame.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -61,8 +64,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DataModel\FrameType.cs" />
+    <Compile Include="IO\SocketClient.cs" />
     <Compile Include="IO\SocketConnection.cs" />
-    <Compile Include="IO\StateObject.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
