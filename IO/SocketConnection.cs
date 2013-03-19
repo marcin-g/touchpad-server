@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -15,13 +16,18 @@ namespace touchpad_server.IO
     {
 
         private static ManualResetEvent allDone = new ManualResetEvent(false);
-
+        private IPEndPoint localEP;
+        public SocketConnection(IPAddress address, int port)
+        {
+            localEP = new IPEndPoint(address, port);
+        }
         public void StartListening()
         {
+            
             IPHostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
-            IPEndPoint localEP = new IPEndPoint(ipHostInfo.AddressList[0], 11000);
-
-            Console.WriteLine("Local address and port : {0}", localEP.ToString());
+            
+            Logger.Log("Local address and port : " + localEP.ToString());
+            //Console.WriteLine("Local address and port : {0}", localEP.ToString());
 
             Socket listener = new Socket(localEP.Address.AddressFamily,
                 SocketType.Stream, ProtocolType.Tcp);
@@ -34,8 +40,8 @@ namespace touchpad_server.IO
                 while (true)
                 {
                     allDone.Reset();
-
-                    Console.WriteLine("Waiting for a connection...");
+                    Logger.Log("Waiting for a connection...");
+                    //Console.WriteLine("Waiting for a connection...");
                     listener.BeginAccept(
                         new AsyncCallback(SocketConnection.acceptCallback),
                         listener);
@@ -45,17 +51,21 @@ namespace touchpad_server.IO
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                Logger.Log(e.ToString());
+                throw e;
+                //Console.WriteLine(e.ToString());
             }
 
-            Console.WriteLine("Closing the listener...");
+            Logger.Log("Closing the listener...");
+            //Console.WriteLine("Closing the listener...");
         }
         public static void acceptCallback(IAsyncResult ar)
         {
             // Get the socket that handles the client request.
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
-            Console.WriteLine("Accept Connection");
+            Logger.Log("Accept Connection");
+            //Console.WriteLine("Accept Connection");
             // Signal the main thread to continue.
             allDone.Set();
             // Create the state object.
