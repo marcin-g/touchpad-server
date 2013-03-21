@@ -2,7 +2,12 @@
 {
     public enum FrameType
     {
-        CLICK=0x01,
-        MOVE=115,
+        CLICK = 1,
+        MOVE = 2,
+        SCROLL = 3,
+        MUTE = 4,
+        VOLUME_UP = 5,
+        VOLUME_DOWN = 6,
+        ZOMM=7,
     }
 }

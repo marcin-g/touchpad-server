@@ -11,7 +11,7 @@ namespace touchpad_server.Controller
     public class MouseController
     {
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern void mouse_event(long dwFlags, long dx, long dy, long cButtons, long dwExtraInfo);
+        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, IntPtr dwExtraInfo);
         [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
         public static extern bool SetCursorPos(int x, int y);
         [DllImport("user32.dll")]
@@ -61,12 +61,12 @@ namespace touchpad_server.Controller
         {
             POINT position = new POINT(0, 0); 
             GetCursorPos(out position);
-            mouse_event(MOUSEEVENTF_LEFTDOWN, position.X, position.Y, 0, 0);
-            mouse_event(MOUSEEVENTF_LEFTUP, position.X, position.Y, 0, 0);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, position.X, position.Y, 0, System.IntPtr.Zero);
+            mouse_event(MOUSEEVENTF_LEFTUP, position.X, position.Y, 0, System.IntPtr.Zero);
         }
         public void Scroll(int value)
         {
-            mouse_event(MOUSEEVENTF_WHEEL, 0, 0, value, 0);
+            mouse_event(MOUSEEVENTF_WHEEL, 0, 0, value, System.IntPtr.Zero);
         }
     }
 }

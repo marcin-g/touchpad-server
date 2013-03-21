@@ -12,12 +12,14 @@ namespace touchpad_server.Controller
         private static object _bufforLock=1;
         private bool _process;
         private Thread _mainThread;
-        private MouseController _controller;
+        private MouseController _mouseController;
+        private AudioController _audioController;
         
         public FrameInterpreter()
         {
             _process = true;
-            _controller=new MouseController();
+            _mouseController=new MouseController();
+            _audioController=new AudioController();
         }
 
         public static void AddFrame(StandardFrame frame)
@@ -78,27 +80,42 @@ namespace touchpad_server.Controller
 
         private void ProcessFrame(StandardFrame frame)
         {
+            Logger.Log(frame.Type.ToString());
             switch (frame.Type)
             {
                 case FrameType.CLICK:
-                    _controller.LMBclick();
+                    _mouseController.LMBclick();
                     break;
                 case FrameType.MOVE:
-                    int offX=ConvertBytes(frame.Argument[0],frame.Argument[1],frame.Argument[2],frame.Argument[3]);
-                    int offY=ConvertBytes(frame.Argument[4],frame.Argument[5],frame.Argument[6],frame.Argument[7]);
-                    _controller.Move(offX,offY);
+                    _mouseController.Move(ConvertBytes(frame.Argument,0),ConvertBytes(frame.Argument,4));
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                case FrameType.SCROLL:
+                    _mouseController.Scroll(ConvertBytes(frame.Argument, 0));
+                    break;
+                case FrameType.MUTE:
+                    _audioController.Mute();
+                    break;
+                case FrameType.VOLUME_DOWN:
+                    _audioController.VolumeDown();
+                    break;
+                case FrameType.VOLUME_UP:
+                    _audioController.VolumeUp();
+                    break;
+                case FrameType.ZOMM:
+                    _audioController.ZoomIn();
+                    break;
+
             }
         }
-        private int ConvertBytes(byte first, byte second, byte third, byte fourth)
+        private int ConvertBytes(byte[] data, int index)
         {
-            byte[] array = {first, second, third, fourth};
+            byte[] array = { data[index], data[index+1], data[index+2], data[index+3] };
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(array);
+            int val= BitConverter.ToInt32(array, 0);
+            Logger.Log("arg "+val);
 
-            return BitConverter.ToInt32(array, 0);
+            return val;
         }
     }
 }

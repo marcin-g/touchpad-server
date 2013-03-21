@@ -79,21 +79,36 @@ namespace touchpad_server.IO
             SocketClient state = (SocketClient)ar.AsyncState;
             Socket handler = state.WorkSocket;
 
-            // Read data from the client socket.
-            int read = handler.EndReceive(ar);
+
+            int read = 0;
+            try
+            {
+
+                read = handler.EndReceive(ar);
+
+            }
+            catch (Exception e)
+            {
+                Logger.Log(e.ToString());
+            }
             // Data was read from the client socket.
             if (read > 0)
             {
-                byte[] tmp=new byte[read-2];
-                Array.Copy(state.Buffer,2,tmp,0,read-2);
-                StandardFrame frame=new StandardFrame(state.Buffer[0],(FrameType)((int) state.Buffer[1]),tmp);
-                FrameInterpreter.AddFrame(frame);
+
+                //Logger.Log((string)VARIABLE.ToString("G"));
+                
+                    byte[] tmp=new byte[read-1];
+                    Array.Copy(state.Buffer,1,tmp,0,read-1);
+                    StandardFrame frame=new StandardFrame((FrameType)((int) state.Buffer[0]),tmp);
+                    FrameInterpreter.AddFrame(frame);
+                
               //  state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
-             /*   handler.BeginReceive(state.Buffer, 0, SocketClient.BufferSize, 0,
-                    new AsyncCallback(readCallback), state);*/
+                handler.BeginReceive(state.Buffer, 0, SocketClient.BufferSize, 0,
+                    new AsyncCallback(readCallback), state);
             }
             else
             {
+                Logger.Log("Zamknieto połączenie");
                /* if (state.sb.Length > 1)
                 {
                     // All the data has been read from the client;

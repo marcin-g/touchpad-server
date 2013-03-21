@@ -29,6 +29,8 @@
 
 
     </Grid>
-        <TextBox Name="LogBox" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" MaxHeight="300"></TextBox>
+        <ScrollViewer MaxHeight="300">
+        <TextBox Name="LogBox" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" ></TextBox>
+        </ScrollViewer>
     </StackPanel>
 </Window>

@@ -54,6 +54,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controller\AudioController.cs" />
     <Compile Include="Controller\FrameInterpreter.cs" />
     <Compile Include="Controller\Logger.cs" />
     <Compile Include="Controller\MouseController.cs" />

@@ -2,7 +2,6 @@
 {
     public class StandardFrame
     {
-        private readonly byte _id;
         private readonly FrameType _type;
         private readonly byte[] _argument;
 
@@ -16,13 +15,8 @@
             get { return _argument; }
         }
 
-        public byte Id
+        public StandardFrame(FrameType type, byte[] argument)
         {
-            get { return _id; }
-        }
-        public StandardFrame(byte id, FrameType type, byte[] argument)
-        {
-            _id = id;
             _type = type;
             _argument = argument;
         }
