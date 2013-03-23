@@ -95,13 +95,26 @@ namespace touchpad_server.IO
             if (read > 0)
             {
 
-                //Logger.Log((string)VARIABLE.ToString("G"));
-                
-                    byte[] tmp=new byte[read-1];
-                    Array.Copy(state.Buffer,1,tmp,0,read-1);
-                    StandardFrame frame=new StandardFrame((FrameType)((int) state.Buffer[0]),tmp);
+                for (int i = 0; i < read; )
+                {
+                    
+                    //Logger.Log((string)read.ToString("G"));
+                    StandardFrame frame = null;
+                    FrameType type= (FrameType) ((int) state.Buffer[i]);
+                    if (type.GetSize() - 1 > 0)
+                    {
+                        byte[] tmp = new byte[type.GetSize() - 1];
+                        Array.Copy(state.Buffer, i + 1, tmp, 0, type.GetSize() - 1);
+                        frame = new StandardFrame(type, tmp);
+                    }
+                    else
+                    {
+                        frame = new StandardFrame(type, null);
+                    }
                     FrameInterpreter.AddFrame(frame);
-                
+                    i += type.GetSize();
+
+                }
               //  state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
                 handler.BeginReceive(state.Buffer, 0, SocketClient.BufferSize, 0,
                     new AsyncCallback(readCallback), state);

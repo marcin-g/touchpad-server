@@ -101,7 +101,7 @@ namespace touchpad_server.Controller
                 case FrameType.VOLUME_UP:
                     _audioController.VolumeUp();
                     break;
-                case FrameType.ZOMM:
+                case FrameType.ZOOM:
                     _audioController.ZoomIn();
                     break;
 
