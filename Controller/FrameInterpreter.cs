@@ -12,8 +12,8 @@ namespace touchpad_server.Controller
         private static object _bufforLock=1;
         private bool _process;
         private Thread _mainThread;
-        private MouseController _mouseController;
-        private AudioController _audioController;
+        private static MouseController _mouseController;
+        private static AudioController _audioController;
         
         public FrameInterpreter()
         {
@@ -24,6 +24,8 @@ namespace touchpad_server.Controller
 
         public static void AddFrame(StandardFrame frame)
         {
+            ProcessFrame(frame);
+            /*
             Monitor.Enter(_bufforLock);
             try
             {
@@ -33,7 +35,7 @@ namespace touchpad_server.Controller
             finally
             {
                 Monitor.Exit(_bufforLock);
-            }
+            }*/
         }
 
         public void BeginProccessing()
@@ -67,7 +69,7 @@ namespace touchpad_server.Controller
                     Monitor.Exit(_bufforLock);
                     if (tmpFrame != null)
                     {
-                        ProcessFrame(tmpFrame);
+                     //   ProcessFrame(tmpFrame);
                     }
                 }
             }
@@ -78,7 +80,7 @@ namespace touchpad_server.Controller
             _mainThread.Abort();
         }
 
-        private void ProcessFrame(StandardFrame frame)
+        private static void ProcessFrame(StandardFrame frame)
         {
             Logger.Log(frame.Type.ToString());
             switch (frame.Type)
@@ -107,7 +109,7 @@ namespace touchpad_server.Controller
 
             }
         }
-        private int ConvertBytes(byte[] data, int index)
+        private static int ConvertBytes(byte[] data, int index)
         {
             byte[] array = { data[index], data[index+1], data[index+2], data[index+3] };
             if (BitConverter.IsLittleEndian)
