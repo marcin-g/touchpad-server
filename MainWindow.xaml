@@ -12,24 +12,27 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Button Grid.Column="0" Grid.Row="3" Content="StartSerwe" HorizontalAlignment="Left" VerticalAlignment="Top"  Click="Button_Click_1"/>
+        <Button Grid.Column="0" Grid.Row="4" Content="StartSerwe" HorizontalAlignment="Left" VerticalAlignment="Top"  Click="Button_Click_1"/>
         <TextBox Grid.Column="1" Grid.Row="2" Name="PortText" HorizontalAlignment="Left" Height="23"  TextWrapping="Wrap" Text="11000" VerticalAlignment="Top" />
         <Label Grid.Column="0" Grid.Row="2">Port</Label>
-        <Button Grid.Column="1" Grid.Row="3" Content="StopSerwe" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Button Grid.Column="1" Grid.Row="4" Content="StopSerwe" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <Label Grid.Column="0" Grid.Row="1">Adres</Label>
-        <ComboBox Grid.Column="1" Grid.Row="0" Name="NetworkCombo" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="NetworkCombo_SelectionChanged">
+            <TextBox Grid.Column="1" Grid.Row="3" Name="SleepText" HorizontalAlignment="Left" Height="23"  TextWrapping="Wrap" Text="1" VerticalAlignment="Top" />
+            <Label Grid.Column="0" Grid.Row="3">Super Sleep Kurwo</Label>
+            <ComboBox Grid.Column="1" Grid.Row="0" Name="NetworkCombo" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="NetworkCombo_SelectionChanged">
             </ComboBox >
         <Label Grid.Column="0" Grid.Row="0">Adapter</Label>
         <ComboBox Grid.Column="1" Grid.Row="1" Name="AddressCombo" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
 
     </Grid>
-        <ScrollViewer MaxHeight="300">
+        <ScrollViewer Name="ScrollView"  MaxHeight="300">
         <TextBox Name="LogBox" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True" ></TextBox>
         </ScrollViewer>
     </StackPanel>

@@ -43,10 +43,9 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>none</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>true</Prefer32Bit>
@@ -86,6 +85,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DataModel\FrameType.cs" />
+    <Compile Include="IO\SocketConnectionSynchronized.cs" />
     <Compile Include="IO\SocketClient.cs" />
     <Compile Include="IO\SocketConnection.cs" />
     <Compile Include="MainWindow.xaml.cs">

@@ -12,12 +12,12 @@ using touchpad_server.DataModel;
 
 namespace touchpad_server.IO
 {
-    public class SocketConnection
+    public class SocketConnectionSynchronized
     {
 
         private static ManualResetEvent allDone = new ManualResetEvent(false);
         private IPEndPoint localEP;
-        public SocketConnection(IPAddress address, int port)
+        public SocketConnectionSynchronized(IPAddress address, int port)
         {
             localEP = new IPEndPoint(address, port);
         }
@@ -39,14 +39,29 @@ namespace touchpad_server.IO
 
                 while (true)
                 {
-                    allDone.Reset();
-                    Logger.Log("Waiting for a connection...");
-                    //Console.WriteLine("Waiting for a connection...");
-                    listener.BeginAccept(
-                        new AsyncCallback(SocketConnection.acceptCallback),
-                        listener);
+                    while (true)
+                    {
+                        Console.WriteLine("Waiting for a connection...");
+                        // Program is suspended while waiting for an incoming connection.
+                        Socket handler = listener.Accept();
 
-                    allDone.WaitOne();
+                        // An incoming connection needs to be processed.
+                        while (true)
+                        {
+                            if (!readCallback(handler))
+                            {
+                                break;
+                            }
+                            
+                            
+                        }
+
+                        // Show the data on the console.
+
+                        handler.Shutdown(SocketShutdown.Both);
+                        handler.Close();
+                    }
+
                 }
             }
             catch (Exception e)
@@ -59,32 +74,17 @@ namespace touchpad_server.IO
             Logger.Log("Closing the listener...");
             //Console.WriteLine("Closing the listener...");
         }
-        public static void acceptCallback(IAsyncResult ar)
+        
+        public static bool readCallback(Socket handler)
         {
-            // Get the socket that handles the client request.
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
-            Logger.Log("Accept Connection");
-            //Console.WriteLine("Accept Connection");
-            // Signal the main thread to continue.
-            allDone.Set();
-            // Create the state object.
-            SocketClient client = new SocketClient();
-            client.WorkSocket = handler;
-            handler.BeginReceive(client.Buffer, 0, SocketClient.BufferSize, 0,
-                new AsyncCallback(SocketConnection.readCallback), client);
-        }
-        public static void readCallback(IAsyncResult ar)
-        {
-            SocketClient state = (SocketClient)ar.AsyncState;
-            Socket handler = state.WorkSocket;
+            
+            byte[] bytes=new byte[9];
+            int read = 0; 
 
-
-            int read = 0;
             try
             {
 
-                read = handler.EndReceive(ar);
+                read = handler.Receive(bytes);
 
             }
             catch (Exception e)
@@ -94,17 +94,17 @@ namespace touchpad_server.IO
             // Data was read from the client socket.
             if (read > 0)
             {
-                read = Math.Min(read, state.Buffer.Length);
+                read = Math.Min(read, bytes.Length);
                 for (int i = 0; i < read; )
                 {
                     
                     //Logger.Log((string)read.ToString("G"));
                     StandardFrame frame = null;
-                    FrameType type= (FrameType) ((int) state.Buffer[i]);
+                    FrameType type = (FrameType)((int)bytes[i]);
                     if (type.GetSize() - 1 > 0)
                     {
                         byte[] tmp = new byte[type.GetSize() - 1];
-                        Array.Copy(state.Buffer, i + 1, tmp, 0, type.GetSize() - 1);
+                        Array.Copy(bytes, i + 1, tmp, 0, type.GetSize() - 1);
                         frame = new StandardFrame(type, tmp);
                     }
                     else
@@ -117,12 +117,12 @@ namespace touchpad_server.IO
                 }
                 Logger.Log("KONIEC");
               //  state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
-                handler.BeginReceive(state.Buffer, 0, SocketClient.BufferSize, 0,
-                    new AsyncCallback(readCallback), state);
             }
             else
             {
+
                 Logger.Log("Zamknieto połączenie");
+                return false;
                /* if (state.sb.Length > 1)
                 {
                     // All the data has been read from the client;
@@ -131,8 +131,8 @@ namespace touchpad_server.IO
                     Console.WriteLine("Read {0} bytes from socket.\n Data : {1}",
                        content.Length, content);
                 }*/
-                handler.Close();
             }
+            return true;
         }
 
 

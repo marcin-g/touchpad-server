@@ -35,6 +35,8 @@ namespace touchpad_server.Controller
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const int MOUSEEVENTF_RIGHTUP = 0x10;
         private const int MOUSEEVENTF_WHEEL = 0x800;
+        private const int MOUSEEVENTF_MOVE=0x0001;
+        private const int WM_MOUSEMOVE = 0x0200;
 
         public void MoveTo(int x, int y)
         {
@@ -43,9 +45,11 @@ namespace touchpad_server.Controller
 
         public void Move(int offsetX, int offsetY )
         {
-            POINT position = new POINT(0, 0);
-            GetCursorPos(out position);
-            SetCursorPos(position.X + offsetX, position.Y + offsetY);
+           // POINT position = new POINT(0, 0);
+            //GetCursorPos(out position);
+
+            mouse_event(MOUSEEVENTF_MOVE, offsetX,  offsetY, 0, System.IntPtr.Zero);
+           // SetCursorPos(position.X + offsetX, position.Y + offsetY);
         }
 
         public Point GetPosition()
@@ -61,6 +65,7 @@ namespace touchpad_server.Controller
         {
             POINT position = new POINT(0, 0); 
             GetCursorPos(out position);
+
             mouse_event(MOUSEEVENTF_LEFTDOWN, position.X, position.Y, 0, System.IntPtr.Zero);
             mouse_event(MOUSEEVENTF_LEFTUP, position.X, position.Y, 0, System.IntPtr.Zero);
         }

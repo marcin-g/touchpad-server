@@ -10,14 +10,13 @@ namespace touchpad_server.Controller
     {
         private static readonly List<StandardFrame> _frameBuffor = new List<StandardFrame>();
         private static object _bufforLock=1;
-        private bool _process;
         private Thread _mainThread;
         private static MouseController _mouseController;
         private static AudioController _audioController;
+        public static int sleepTime;
         
         public FrameInterpreter()
         {
-            _process = true;
             _mouseController=new MouseController();
             _audioController=new AudioController();
         }
@@ -25,6 +24,7 @@ namespace touchpad_server.Controller
         public static void AddFrame(StandardFrame frame)
         {
             ProcessFrame(frame);
+            Thread.Sleep(sleepTime);
             /*
             Monitor.Enter(_bufforLock);
             try
@@ -41,7 +41,6 @@ namespace touchpad_server.Controller
         public void BeginProccessing()
         {
             _frameBuffor.Clear();
-            _process = true;
             _mainThread=new Thread(ProccessingThread);
             _mainThread.IsBackground = true;
             _mainThread.Start();

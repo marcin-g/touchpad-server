@@ -11,7 +11,7 @@ namespace touchpad_server.IO
     {
         private Socket _workSocket;
         private byte[] _buffer = new byte[BufferSize];
-        public const int BufferSize = 512;
+        public const int BufferSize = 1024;
 
         public Socket WorkSocket
         {

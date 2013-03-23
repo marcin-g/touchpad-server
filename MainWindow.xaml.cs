@@ -28,7 +28,7 @@ namespace touchpad_server
     {
 
         private readonly BackgroundWorker worker = new BackgroundWorker();
-        private SocketConnection connection;
+        private SocketConnectionSynchronized connection;
         private readonly FrameInterpreter interpreter = new FrameInterpreter();
         public static MainWindow myInstance;
         public MainWindow()
@@ -69,7 +69,8 @@ namespace touchpad_server
             int i = 0;
             if (Int32.TryParse(PortText.Text, out i) && AddressCombo.SelectedValue!=null)
             {
-                connection = new SocketConnection((IPAddress) AddressCombo.SelectedValue, Int32.Parse(PortText.Text));
+                FrameInterpreter.sleepTime = Int32.Parse(SleepText.Text);
+                connection = new SocketConnectionSynchronized((IPAddress)AddressCombo.SelectedValue, Int32.Parse(PortText.Text));
                 worker.RunWorkerAsync();
             }
         }
