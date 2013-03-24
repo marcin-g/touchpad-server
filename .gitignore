@@ -1,5 +1,6 @@
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
 [Bb]in/
+!bin/Release
 [Oo]bj/
 
 # mstest test results
@@ -16,6 +17,7 @@ TestResults
 # Build results
 [Dd]ebug/
 [Rr]elease/
+!Release/touchpad-server.exe
 x64/
 *_i.c
 *_p.c
@@ -89,8 +91,6 @@ csx
 AppPackages/
 
 # Others
-[Bb]in
-[Oo]bj
 sql
 TestResults
 [Tt]est[Rr]esult*
