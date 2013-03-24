@@ -11,7 +11,8 @@ namespace touchpad_server.IO
     {
         private Socket _workSocket;
         private byte[] _buffer = new byte[BufferSize];
-        public const int BufferSize = 512;
+        public const int BufferSize = 10;
+        private byte[] _brokenFrame;
 
         public Socket WorkSocket
         {
@@ -23,6 +24,12 @@ namespace touchpad_server.IO
         {
             get { return _buffer; }
             set { _buffer = value; }
+        }
+
+        public byte[] BrokenFrame
+        {
+            get { return _brokenFrame; }
+            set { _brokenFrame = value; }
         }
     }
 }

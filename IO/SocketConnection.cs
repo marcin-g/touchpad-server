@@ -62,6 +62,9 @@ namespace touchpad_server.IO
         public static void acceptCallback(IAsyncResult ar)
         {
             // Get the socket that handles the client request.
+            try
+            {
+                
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
             Logger.Log("Accept Connection");
@@ -73,29 +76,48 @@ namespace touchpad_server.IO
             client.WorkSocket = handler;
             handler.BeginReceive(client.Buffer, 0, SocketClient.BufferSize, 0,
                 new AsyncCallback(SocketConnection.readCallback), client);
-        }
-        public static void readCallback(IAsyncResult ar)
-        {
-            SocketClient state = (SocketClient)ar.AsyncState;
-            Socket handler = state.WorkSocket;
-
-
-            int read = 0;
-            try
-            {
-
-                read = handler.EndReceive(ar);
 
             }
             catch (Exception e)
             {
                 Logger.Log(e.ToString());
             }
+
+        }
+        public static void readCallback(IAsyncResult ar)
+        {
+            
+            SocketClient state = (SocketClient)ar.AsyncState;
+            Socket handler = state.WorkSocket;
+
+
+            int read = 0;
+
+                read = handler.EndReceive(ar);
+
+            
             // Data was read from the client socket.
             if (read > 0)
             {
+                int startIndex = 0;
+                if (state.BrokenFrame != null && state.BrokenFrame.Length>0)
+                {
+                    FrameType type = (FrameType)((int)state.BrokenFrame[0]);
+                    byte[] tmp = new byte[type.GetSize() - 1];
+                    for (int i = 0; i < state.BrokenFrame.Length-1; i++)
+                    {
+                        tmp[i] = state.BrokenFrame[i+1];
+                    }
+                    for (int i = 0, j = state.BrokenFrame.Length-1; j < type.GetSize()-1; i++,j++,startIndex++)
+                    {
+                        tmp[j] = state.Buffer[i];
+                    }
 
-                for (int i = 0; i < read; )
+                    state.BrokenFrame = null;
+                    FrameInterpreter.AddFrame(new StandardFrame(type, tmp));
+                }
+
+                for (int i = startIndex; i < read; )
                 {
                     
                     //Logger.Log((string)read.ToString("G"));
@@ -103,17 +125,27 @@ namespace touchpad_server.IO
                     FrameType type= (FrameType) ((int) state.Buffer[i]);
                     if (type.GetSize() - 1 > 0)
                     {
-                        byte[] tmp = new byte[type.GetSize() - 1];
-                        Array.Copy(state.Buffer, i + 1, tmp, 0, type.GetSize() - 1);
-                        frame = new StandardFrame(type, tmp);
+                        if (i + type.GetSize() > read)
+                        {
+                            byte[] tmp = new byte[read-i];
+                            Array.Copy(state.Buffer, i, tmp, 0, read-i);
+                            state.BrokenFrame=tmp;
+                        }
+                        else
+                        {
+                            byte[] tmp = new byte[type.GetSize() - 1];
+                            Array.Copy(state.Buffer, i + 1, tmp, 0, type.GetSize() - 1);
+                            frame = new StandardFrame(type, tmp);
+                            FrameInterpreter.AddFrame(frame);
+                        }
                     }
                     else
                     {
                         frame = new StandardFrame(type, null);
+                        FrameInterpreter.AddFrame(frame);
                     }
-                    FrameInterpreter.AddFrame(frame);
-                    i += type.GetSize();
 
+                    i += type.GetSize();
                 }
               //  state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, read));
                 handler.BeginReceive(state.Buffer, 0, SocketClient.BufferSize, 0,
@@ -132,6 +164,8 @@ namespace touchpad_server.IO
                 }*/
                 handler.Close();
             }
+            
+            
         }
 
 

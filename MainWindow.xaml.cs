@@ -57,9 +57,10 @@ namespace touchpad_server
                 while(true)
                 connection.StartListening();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 worker.Dispose();
+                Logger.Log(ex.ToString());
             }
         }
 
