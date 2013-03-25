@@ -97,7 +97,9 @@ namespace touchpad_server.Controller
                     _mouseController.LMBclick();
                     break;
                 case FrameType.MOVE:
-                    _mouseController.Move(ConvertBytes(frame.Argument,0),ConvertBytes(frame.Argument,4));
+                    //_mouseController.Move(ConvertBytes(frame.Argument,0),ConvertBytes(frame.Argument,4));
+                    MouseController.MoveMouse(ConvertBytes(frame.Argument, 0), ConvertBytes(frame.Argument, 4));
+                    
                     break;
                 case FrameType.SCROLL:
                     _mouseController.Scroll(ConvertBytes(frame.Argument, 0));
