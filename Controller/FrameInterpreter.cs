@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Threading;
 using touchpad_server.DataModel;
 
@@ -9,24 +8,21 @@ namespace touchpad_server.Controller
     public class FrameInterpreter
     {
         private static readonly List<StandardFrame> _frameBuffor = new List<StandardFrame>();
-        private static object _bufforLock=1;
-        private bool _process;
+        private static readonly object _bufforLock = 1;
+        private static readonly Command _command = new Command();
+        private static int counter;
         private Thread _mainThread;
-        private static MouseController _mouseController;
-        private static AudioController _audioController;
-        private static int counter = 0;
-        
+        private bool _process;
+
         public FrameInterpreter()
         {
             _process = true;
-            _mouseController=new MouseController();
-            _audioController=new AudioController();
         }
 
         public static void AddFrame(StandardFrame frame)
         {
-          //  ProcessFrame(frame);
-            
+            //  ProcessFrame(frame);
+
             Monitor.Enter(_bufforLock);
             try
             {
@@ -43,10 +39,11 @@ namespace touchpad_server.Controller
         {
             _frameBuffor.Clear();
             _process = true;
-            _mainThread=new Thread(ProccessingThread);
+            _mainThread = new Thread(ProccessingThread);
             _mainThread.IsBackground = true;
             _mainThread.Start();
         }
+
         private void ProccessingThread()
         {
             try
@@ -81,8 +78,8 @@ namespace touchpad_server.Controller
             {
                 Logger.Log(ex.ToString());
             }
-
         }
+
         public void EndProcessing()
         {
             _mainThread.Abort();
@@ -90,42 +87,48 @@ namespace touchpad_server.Controller
 
         private static void ProcessFrame(StandardFrame frame)
         {
-            Logger.Log(frame.Type.ToString()+ " "+counter++);
+            Logger.Log(frame.Type.ToString() + " " + counter++);
             switch (frame.Type)
             {
                 case FrameType.CLICK:
-                    _mouseController.LMBclick();
+                    _command.LeftClick();
                     break;
                 case FrameType.MOVE:
                     //_mouseController.Move(ConvertBytes(frame.Argument,0),ConvertBytes(frame.Argument,4));
-                    MouseController.MoveMouse(ConvertBytes(frame.Argument, 0), ConvertBytes(frame.Argument, 4));
-                    
+                    _command.MoveCursor(ConvertBytes(frame.Argument, 0), ConvertBytes(frame.Argument, 4));
+
                     break;
                 case FrameType.SCROLL:
-                    _mouseController.Scroll(ConvertBytes(frame.Argument, 0));
+                    _command.Scroll(ConvertBytes(frame.Argument, 0));
                     break;
                 case FrameType.MUTE:
-                    _audioController.Mute();
+                    _command.Mute();
                     break;
                 case FrameType.VOLUME_DOWN:
-                    _audioController.VolumeDown();
+                    _command.VolumeDown();
                     break;
                 case FrameType.VOLUME_UP:
-                    _audioController.VolumeUp();
+                    _command.VolumeUp();
                     break;
                 case FrameType.ZOOM:
-                    _audioController.ZoomIn();
+                    _command.Zoom(ConvertBytes(frame.Argument, 0));
                     break;
-
+                case FrameType.CLOSE:
+                    _command.CloseWindow();
+                    break;
+                case FrameType.SWITCH:
+                    _command.Switch(ConvertBytes(frame.Argument, 0));
+                    break;
             }
         }
+
         private static int ConvertBytes(byte[] data, int index)
         {
-            byte[] array = { data[index], data[index+1], data[index+2], data[index+3] };
+            byte[] array = {data[index], data[index + 1], data[index + 2], data[index + 3]};
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(array);
-            int val= BitConverter.ToInt32(array, 0);
-            Logger.Log("arg "+val);
+            int val = BitConverter.ToInt32(array, 0);
+            Logger.Log("arg " + val);
 
             return val;
         }

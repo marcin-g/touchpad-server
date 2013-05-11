@@ -73,9 +73,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controller\AudioController.cs" />
+    <Compile Include="Controller\Command.cs" />
+    <Compile Include="Controller\KeyboardController.cs" />
     <Compile Include="Controller\FrameInterpreter.cs" />
     <Compile Include="Controller\Logger.cs" />
     <Compile Include="Controller\MouseController.cs" />
+    <Compile Include="Controller\WindowControler.cs" />
     <Compile Include="DataModel\StandardFrame.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

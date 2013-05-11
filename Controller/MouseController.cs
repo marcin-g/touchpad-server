@@ -1,38 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
-using System.Drawing;
-using Point = System.Windows.Point;
 
 namespace touchpad_server.Controller
 {
     public class MouseController
     {
-        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, IntPtr dwExtraInfo);
-        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool SetCursorPos(int x, int y);
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool GetCursorPos(out POINT lpPoint);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
-        {
-            public int X;
-            public int Y;
-
-            public POINT(int x, int y)
-            {
-                this.X = x;
-                this.Y = y;
-            }
-        }
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
         private const int MOUSEEVENTF_LEFTUP = 0x04;
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
@@ -40,23 +13,33 @@ namespace touchpad_server.Controller
         private const int MOUSEEVENTF_WHEEL = 0x800;
         private const int MOUSEEVENTF_MOVE = 0x0001;
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern void mouse_event(int dwFlags, int dx, int dy, int cButtons, IntPtr dwExtraInfo);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool SetCursorPos(int x, int y);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetCursorPos(out POINT lpPoint);
+
         public void MoveTo(int x, int y)
         {
             SetCursorPos(x, y);
         }
 
-        public void Move(int offsetX, int offsetY )
+        public void Move(int offsetX, int offsetY)
         {
-           /* POINT position = new POINT(0, 0);
+            /* POINT position = new POINT(0, 0);
             GetCursorPos(out position);
             SetCursorPos(position.X + offsetX, position.Y + offsetY);*/
-           // System.Windows.PointCursor.Position.X += offsetX;
-            mouse_event(MOUSEEVENTF_MOVE, offsetX, offsetY, 0, System.IntPtr.Zero);
+            // System.Windows.PointCursor.Position.X += offsetX;
+            mouse_event(MOUSEEVENTF_MOVE, offsetX, offsetY, 0, IntPtr.Zero);
         }
 
         public Point GetPosition()
         {
-            POINT position = new POINT(0, 0);
+            var position = new POINT(0, 0);
             GetCursorPos(out position);
 
             // MessageBox.Show(position.X + " " + position.Y);
@@ -65,65 +48,84 @@ namespace touchpad_server.Controller
 
         public void LMBclick()
         {
-            POINT position = new POINT(0, 0); 
+            var position = new POINT(0, 0);
             GetCursorPos(out position);
-            mouse_event(MOUSEEVENTF_LEFTDOWN, position.X, position.Y, 0, System.IntPtr.Zero);
-            mouse_event(MOUSEEVENTF_LEFTUP, position.X, position.Y, 0, System.IntPtr.Zero);
+            mouse_event(MOUSEEVENTF_LEFTDOWN, position.X, position.Y, 0, IntPtr.Zero);
+            mouse_event(MOUSEEVENTF_LEFTUP, position.X, position.Y, 0, IntPtr.Zero);
         }
+
         public void Scroll(int value)
         {
-            mouse_event(MOUSEEVENTF_WHEEL, 0, 0, value, System.IntPtr.Zero);
+            mouse_event(MOUSEEVENTF_WHEEL, 0, 0, value, IntPtr.Zero);
         }
 
 
         [DllImport("user32.dll", SetLastError = true)]
-        static extern uint SendInput(uint nInputs, ref INPUT pInputs, int cbSize);
+        private static extern uint SendInput(uint nInputs, ref INPUT pInputs, int cbSize);
+
+        public static void ClickLeftMouseButton()
+        {
+            var mouseDownInput = new INPUT();
+            mouseDownInput.type = SendInputEventType.InputMouse;
+            mouseDownInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_LEFTDOWN;
+            SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));
+
+            var mouseUpInput = new INPUT();
+            mouseUpInput.type = SendInputEventType.InputMouse;
+            mouseUpInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_LEFTUP;
+            SendInput(1, ref mouseUpInput, Marshal.SizeOf(new INPUT()));
+        }
+
+        public static void ClickRightMouseButton()
+        {
+            var mouseDownInput = new INPUT();
+            mouseDownInput.type = SendInputEventType.InputMouse;
+            mouseDownInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_RIGHTDOWN;
+            SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));
+
+            var mouseUpInput = new INPUT();
+            mouseUpInput.type = SendInputEventType.InputMouse;
+            mouseUpInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_RIGHTUP;
+            SendInput(1, ref mouseUpInput, Marshal.SizeOf(new INPUT()));
+        }
+
+        public static void MoveMouse(int offsetX, int offsetY)
+        {
+            var mouseDownInput = new INPUT();
+            mouseDownInput.type = SendInputEventType.InputMouse;
+            mouseDownInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_MOVE;
+            mouseDownInput.mkhi.mi.dx = offsetX;
+            mouseDownInput.mkhi.mi.dy = offsetY;
+            SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));
+        }
 
         [StructLayout(LayoutKind.Sequential)]
-        struct INPUT
+        private struct HARDWAREINPUT
+        {
+            public readonly int uMsg;
+            public readonly short wParamL;
+            public readonly short wParamH;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct INPUT
         {
             public SendInputEventType type;
             public MouseKeybdhardwareInputUnion mkhi;
         }
-        [StructLayout(LayoutKind.Explicit)]
-        struct MouseKeybdhardwareInputUnion
-        {
-            [FieldOffset(0)]
-            public MouseInputData mi;
 
-            [FieldOffset(0)]
-            public KEYBDINPUT ki;
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KEYBDINPUT
+        {
+            public readonly ushort wVk;
+            public readonly ushort wScan;
+            public readonly uint dwFlags;
+            public readonly uint time;
+            public readonly IntPtr dwExtraInfo;
+        }
 
-            [FieldOffset(0)]
-            public HARDWAREINPUT hi;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        struct KEYBDINPUT
-        {
-            public ushort wVk;
-            public ushort wScan;
-            public uint dwFlags;
-            public uint time;
-            public IntPtr dwExtraInfo;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        struct HARDWAREINPUT
-        {
-            public int uMsg;
-            public short wParamL;
-            public short wParamH;
-        }
-        struct MouseInputData
-        {
-            public int dx;
-            public int dy;
-            public uint mouseData;
-            public MouseEventFlags dwFlags;
-            public uint time;
-            public IntPtr dwExtraInfo;
-        }
         [Flags]
-        enum MouseEventFlags : uint
+        private enum MouseEventFlags : uint
         {
             MOUSEEVENTF_MOVE = 0x0001,
             MOUSEEVENTF_LEFTDOWN = 0x0002,
@@ -138,47 +140,45 @@ namespace touchpad_server.Controller
             MOUSEEVENTF_VIRTUALDESK = 0x4000,
             MOUSEEVENTF_ABSOLUTE = 0x8000
         }
-        enum SendInputEventType : int
+
+        private struct MouseInputData
+        {
+            public IntPtr dwExtraInfo;
+            public MouseEventFlags dwFlags;
+            public int dx;
+            public int dy;
+            public uint mouseData;
+            public uint time;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct MouseKeybdhardwareInputUnion
+        {
+            [FieldOffset(0)] public MouseInputData mi;
+
+            [FieldOffset(0)] public readonly KEYBDINPUT ki;
+
+            [FieldOffset(0)] public readonly HARDWAREINPUT hi;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+
+            public POINT(int x, int y)
+            {
+                X = x;
+                Y = y;
+            }
+        }
+
+        private enum SendInputEventType
         {
             InputMouse,
             InputKeyboard,
             InputHardware
         }
-
-        public static void ClickLeftMouseButton()
-        {
-            INPUT mouseDownInput = new INPUT();
-            mouseDownInput.type = SendInputEventType.InputMouse;
-            mouseDownInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_LEFTDOWN;
-            SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));
-
-            INPUT mouseUpInput = new INPUT();
-            mouseUpInput.type = SendInputEventType.InputMouse;
-            mouseUpInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_LEFTUP;
-            SendInput(1, ref mouseUpInput, Marshal.SizeOf(new INPUT()));
-        }
-        public static void ClickRightMouseButton()
-        {
-            INPUT mouseDownInput = new INPUT();
-            mouseDownInput.type = SendInputEventType.InputMouse;
-            mouseDownInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_RIGHTDOWN;
-            SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));
-
-            INPUT mouseUpInput = new INPUT();
-            mouseUpInput.type = SendInputEventType.InputMouse;
-            mouseUpInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_RIGHTUP;
-            SendInput(1, ref mouseUpInput, Marshal.SizeOf(new INPUT()));
-        }
-        public static void MoveMouse(int offsetX, int offsetY)
-        {
-            INPUT mouseDownInput = new INPUT();
-            mouseDownInput.type = SendInputEventType.InputMouse;
-            mouseDownInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_MOVE;
-            mouseDownInput.mkhi.mi.dx = offsetX;
-            mouseDownInput.mkhi.mi.dy = offsetY;
-            SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));
-
-        }
-
     }
 }
