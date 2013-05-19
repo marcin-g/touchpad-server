@@ -42,6 +42,7 @@ namespace touchpad_server.Controller
             _frameBuffor.Clear();
             _process = true;
             _mainThread = new Thread(ProccessingThread);
+            _mainThread.Priority = ThreadPriority.Highest;
             _mainThread.IsBackground = true;
             _mainThread.Start();
         }
