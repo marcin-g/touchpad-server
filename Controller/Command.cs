@@ -62,13 +62,20 @@ namespace touchpad_server.Controller
             if (val == 0)
             {
 
+                StartSwitch();
             //    SendKeys.SendWait("TAB");
-                _keyBoardController.PushKey(0x09, 0); //TAB
-                _keyBoardController.ReleaseKey(0x09,0);
             }
             else if (val == 1)
             {
-                StartSwitch();
+                _keyBoardController.PushKey(0x09, 0); //TAB
+                _keyBoardController.ReleaseKey(0x09, 0);
+            }
+            else if (val == 2)
+            {
+                _keyBoardController.PushKey(0x11, 0x14);
+                _keyBoardController.PushKey(0x09, 0); //TAB
+                _keyBoardController.ReleaseKey(0x09, 0);
+                _keyBoardController.ReleaseKey(0x11, 0x14);
             }
             else
             {
