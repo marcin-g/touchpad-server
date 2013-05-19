@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Diagnostics;
+using System.Net.Sockets;
 
 namespace touchpad_server.IO
 {
@@ -6,6 +7,7 @@ namespace touchpad_server.IO
     {
         public const int BufferSize = 10;
         private byte[] _buffer = new byte[BufferSize];
+        public Stopwatch sw=new Stopwatch();
 
         public Socket WorkSocket { get; set; }
 

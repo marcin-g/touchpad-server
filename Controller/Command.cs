@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace touchpad_server.Controller
 {
@@ -8,10 +9,15 @@ namespace touchpad_server.Controller
         private readonly KeyboardController _keyBoardController = new KeyboardController();
         private readonly MouseController _mouseController = new MouseController();
         private readonly WindowControler _windowControler = new WindowControler();
+        Stopwatch watch = new Stopwatch();
 
         public void MoveCursor(int offsetX, int offsetY)
         {
+            watch.Reset();
+            watch.Start();
             _mouseController.Move(offsetX, offsetY);
+            watch.Stop();
+            Logger.LogTime("MOVE " + watch.ElapsedTicks);
         }
 
         public void LeftClick()
@@ -72,10 +78,10 @@ namespace touchpad_server.Controller
             }
             else if (val == 2)
             {
-                _keyBoardController.PushKey(0x11, 0x14);
+                _keyBoardController.PushKey(0xA0, 0);
                 _keyBoardController.PushKey(0x09, 0); //TAB
                 _keyBoardController.ReleaseKey(0x09, 0);
-                _keyBoardController.ReleaseKey(0x11, 0x14);
+                _keyBoardController.ReleaseKey(0xA0, 0);
             }
             else
             {

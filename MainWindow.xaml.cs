@@ -76,5 +76,16 @@ namespace touchpad_server
                 }
             }
         }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            connection.Stop();
+            Logger.CloseLogFile();
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            Logger.CloseLogFile();
+        }
     }
 }
