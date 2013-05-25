@@ -60,8 +60,6 @@ namespace touchpad_server.Controller
 
         public void Scroll(int value)
         {
-            Thread.Sleep(2000);
-            Logger.Log("jestem");
             TheInputSimulator.Mouse.VerticalScroll(value);
 
             /* var mouseDownInput = new INPUT();
