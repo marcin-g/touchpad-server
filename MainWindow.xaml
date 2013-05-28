@@ -10,6 +10,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition />
@@ -17,12 +18,12 @@
                 <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Button Grid.Column="0" Grid.Row="3" Content="StartSerwe" HorizontalAlignment="Left"
-                    VerticalAlignment="Top" Click="Button_Click_1" />
+            <Button Grid.Column="0" Grid.Row="3" Content="StartSerwer" HorizontalAlignment="Left"
+                    VerticalAlignment="Top" Click="Button_Click_1" IsEnabled="False" />
             <TextBox Grid.Column="1" Grid.Row="2" Name="PortText" HorizontalAlignment="Left" Height="23"
                      TextWrapping="Wrap" Text="11000" VerticalAlignment="Top" />
             <Label Grid.Column="0" Grid.Row="2">Port</Label>
-            <Button Grid.Column="1" Grid.Row="3" Content="StopSerwe" HorizontalAlignment="Left" Click="ButtonBase_OnClick"/>
+            <Button Grid.Column="1" Grid.Row="3" Content="StopSerwer" HorizontalAlignment="Left" Click="ButtonBase_OnClick"/>
             <Label Grid.Column="0" Grid.Row="1">Adres</Label>
             <ComboBox Grid.Column="1" Grid.Row="0" Name="NetworkCombo" HorizontalAlignment="Left"
                       VerticalAlignment="Top" SelectionChanged="NetworkCombo_SelectionChanged">
@@ -30,6 +31,7 @@
             <Label Grid.Column="0" Grid.Row="0">Adapter</Label>
             <ComboBox Grid.Column="1" Grid.Row="1" Name="AddressCombo" HorizontalAlignment="Left"
                       VerticalAlignment="Top" />
+            <Button Grid.Column="2" Grid.Row="3" Content="QRCode" HorizontalAlignment="Left" Click="QrCode_Click"/>
 
 
         </Grid>

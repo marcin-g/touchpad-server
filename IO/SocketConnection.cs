@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using touchpad_server.Controller;
@@ -9,12 +12,86 @@ namespace touchpad_server.IO
 {
     public class SocketConnection
     {
-        private static readonly ManualResetEvent allDone = new ManualResetEvent(false);
+        private readonly ManualResetEvent allDone = new ManualResetEvent(false);
         private readonly IPEndPoint localEP;
         private Socket Listener;
+        private static Dictionary<SocketConnection,Thread> connections = new Dictionary<SocketConnection,Thread> ();
+        private static int ConnectionPort=11000;
+        private static readonly ManualResetEvent connectedLock = new ManualResetEvent(false);
+
         public SocketConnection(IPAddress address, int port)
         {
             localEP = new IPEndPoint(address, port);
+        }
+
+        public static string CreateConnection()
+        {
+            connectedLock.Reset();
+            List<IPAddress> ips = new List<IPAddress>();
+            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (nic.OperationalStatus == OperationalStatus.Up)
+                {
+                    foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                        {
+                            ips.Add(ip.Address);
+                        }
+                    }
+                }
+            }
+
+            string result = "";
+            foreach (var ipAddress in ips)
+            {
+                SocketConnection tmpSocket = new SocketConnection(ipAddress, ConnectionPort);
+                Thread tmpThread = new Thread(delegate() {
+                    try
+                    {
+                        tmpSocket.StartListening();
+                    }
+                    catch (SocketException)
+                    {
+                        Logger.Log("zamknieto watek");
+                    }
+                                                             
+                });
+                tmpThread.Start();
+                connections.Add(tmpSocket,tmpThread);
+                result += ipAddress.ToString() +":"+ConnectionPort+ ";";
+            }
+            result=result.Remove(result.LastIndexOf(";"));
+            return result;
+        }
+        public static void CloseOtherConnections(SocketConnection notClosed)
+        {
+            Thread notClosedThread = connections[notClosed];
+            foreach (var item in connections)
+            {
+                if (item.Key != notClosed)
+                {
+                    try
+                    {
+                        item.Key.CloseNotBinded();
+                        Logger.Log("zamknieto polaczenie w CloseOtherConnections");
+                    }
+                    catch (Exception)
+                    {
+                        Logger.Log("zamknieto polaczenie w CloseOtherConnections");
+                    }
+                }
+            }
+            connections.Clear();
+            connections.Add(notClosed, notClosedThread);
+            connectedLock.Set();
+        }
+        public static SocketConnection GetConnectedSocket()
+        {
+            connectedLock.WaitOne();
+            IEnumerator enumerator = connections.Keys.GetEnumerator();
+            enumerator.MoveNext();
+            return (SocketConnection) enumerator.Current;
         }
 
         public void StartListening()
@@ -40,29 +117,30 @@ namespace touchpad_server.IO
                     Listener.BeginAccept(
                         acceptCallback,
                         Listener);
-
                     allDone.WaitOne();
                 }
             }
             catch (Exception e)
             {
+                Logger.Log("Closing the listener...");
                 Logger.Log(e.ToString());
-                throw e;
+                throw new SocketException();
                 //Console.WriteLine(e.ToString());
             }
 
-            Logger.Log("Closing the listener...");
             //Console.WriteLine("Closing the listener...");
         }
 
-        public static void acceptCallback(IAsyncResult ar)
+        private void acceptCallback(IAsyncResult ar)
         {
             // Get the socket that handles the client request.
             try
             {
+
                 var listener = (Socket) ar.AsyncState;
                 Socket handler = listener.EndAccept(ar);
                 Logger.Log("Accept Connection");
+                SocketConnection.CloseOtherConnections(this);
                 //Console.WriteLine("Accept Connection");
                 // Signal the main thread to continue.
                 allDone.Set();
@@ -74,11 +152,13 @@ namespace touchpad_server.IO
             }
             catch (Exception e)
             {
+                Logger.Log("Closing the listener...");
                 Logger.Log(e.ToString());
+                allDone.Set();
             }
         }
 
-        public static void readCallback(IAsyncResult ar)
+        private void readCallback(IAsyncResult ar)
         {
             var state = (SocketClient) ar.AsyncState;
             Socket handler = state.WorkSocket;
@@ -183,8 +263,18 @@ namespace touchpad_server.IO
                 handler.Close();
             }
         }
-        public void Stop()
+
+        //CloseNotBinded not binded socket
+        public void CloseNotBinded()
         {
+            //Listener.Shutdown(SocketShutdown.Receive);
+            //Listener.Disconnect(false);
+            Listener.Close();
+        }
+        //CloseNotBinded not binded socket
+        public void CloseBinded()
+        {
+            Listener.Shutdown(SocketShutdown.Receive);
             Listener.Close();
         }
     }

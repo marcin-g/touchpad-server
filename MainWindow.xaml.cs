@@ -18,6 +18,9 @@ namespace touchpad_server
         private readonly FrameInterpreter interpreter = new FrameInterpreter();
         private readonly BackgroundWorker worker = new BackgroundWorker();
         private SocketConnection connection;
+        private string qrString;
+        private object workerLock=new object();
+        QRWindow window=new QRWindow();
 
         public MainWindow()
         {
@@ -30,6 +33,7 @@ namespace touchpad_server
             {
                 NetworkCombo.Items.Add(nic.Name);
             }
+            worker.RunWorkerAsync();
         }
 
         private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -41,13 +45,20 @@ namespace touchpad_server
         {
             try
             {
-                while (true)
-                    connection.StartListening();
+                qrString = SocketConnection.CreateConnection();
+
+                myInstance.Dispatcher.Invoke(new Action(delegate()
+                    {
+                        window.qrControl.Text = qrString;
+                        window.Show();
+                    }));
+                connection = SocketConnection.GetConnectedSocket();
+                myInstance.Dispatcher.Invoke(new Action(delegate() { window.Close();}));
             }
             catch (Exception ex)
             {
-                worker.Dispose();
                 Logger.Log(ex.ToString());
+                return;
             }
         }
 
@@ -79,13 +90,32 @@ namespace touchpad_server
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            connection.Stop();
+            connection.CloseNotBinded();
             Logger.CloseLogFile();
         }
 
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
+            if (connection != null)
+            {
+                connection.CloseNotBinded();
+                
+            }
+            if (interpreter != null)
+            {
+                interpreter.EndProcessing();
+            }
             Logger.CloseLogFile();
+        }
+
+        private void QrCode_Click(object sender, RoutedEventArgs e)
+        {
+            window=new QRWindow();
+            myInstance.Dispatcher.Invoke(new Action(delegate()
+            {
+                window.qrControl.Text = qrString;
+                window.Show();
+            }));
         }
     }
 }
