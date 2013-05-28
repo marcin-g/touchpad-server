@@ -2,13 +2,12 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using WindowsInput;
 
 namespace touchpad_server.Controller
 {
     public class MouseController
     {
-        InputSimulator TheInputSimulator = new InputSimulator();
+       // InputSimulator TheInputSimulator = new InputSimulator();
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
         private const int MOUSEEVENTF_LEFTUP = 0x04;
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
@@ -37,8 +36,8 @@ namespace touchpad_server.Controller
             GetCursorPos(out position);
             SetCursorPos(position.X + offsetX, position.Y + offsetY);*/
             // System.Windows.PointCursor.Position.X += offsetX;
-           // mouse_event(MOUSEEVENTF_MOVE, offsetX, offsetY, 0, IntPtr.Zero);
-            TheInputSimulator.Mouse.MoveMouseBy(offsetX, offsetY);
+            mouse_event(MOUSEEVENTF_MOVE, offsetX, offsetY, 0, IntPtr.Zero);
+           // TheInputSimulator.Mouse.MoveMouseBy(offsetX, offsetY);
         }
 
         public Point GetPosition()
@@ -60,14 +59,21 @@ namespace touchpad_server.Controller
 
         public void Scroll(int value)
         {
-            TheInputSimulator.Mouse.VerticalScroll(value);
+            //TheInputSimulator.Mouse.VerticalScroll(value);
 
-            /* var mouseDownInput = new INPUT();
+           /* var mouseDownInput = new INPUT();
             mouseDownInput.type = SendInputEventType.InputMouse;
             mouseDownInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_WHEEL;
             mouseDownInput.mkhi.mi.dwExtraInfo = value;
             SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));*/
-            // mouse_event((int)MouseEventFlags.MOUSEEVENTF_WHEEL, 0, 0, value, IntPtr.Zero);
+            if (value > 0)
+            {
+                mouse_event((int) MouseEventFlags.MOUSEEVENTF_WHEEL, 0, 0, Math.Min(value, 20) * 120, IntPtr.Zero);
+            }
+            else
+            {
+                mouse_event((int)MouseEventFlags.MOUSEEVENTF_WHEEL, 0, 0, Math.Max(value, -20) * 120, IntPtr.Zero);
+            }
         }
 
 
