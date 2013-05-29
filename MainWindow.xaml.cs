@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
 using touchpad_server.Controller;
@@ -96,10 +97,22 @@ namespace touchpad_server
 
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
+
             if (connection != null)
             {
-                connection.CloseNotBinded();
-                
+                try
+                {
+                    connection.CloseNotBinded();
+                    connection.CloseBinded();
+                }
+                catch (SocketException)
+                {
+                }
+
+            }
+            else
+            {
+                SocketConnection.CloseOtherConnections(null);
             }
             if (interpreter != null)
             {

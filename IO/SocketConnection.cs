@@ -66,7 +66,11 @@ namespace touchpad_server.IO
         }
         public static void CloseOtherConnections(SocketConnection notClosed)
         {
-            Thread notClosedThread = connections[notClosed];
+            Thread notClosedThread = null;
+            if (notClosed != null)
+            {
+                notClosedThread = connections[notClosed];
+            }
             foreach (var item in connections)
             {
                 if (item.Key != notClosed)
@@ -83,7 +87,10 @@ namespace touchpad_server.IO
                 }
             }
             connections.Clear();
-            connections.Add(notClosed, notClosedThread);
+            if (notClosed != null)
+            {
+                connections.Add(notClosed, notClosedThread);
+            }
             connectedLock.Set();
         }
         public static SocketConnection GetConnectedSocket()
