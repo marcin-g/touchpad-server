@@ -47,9 +47,9 @@ namespace touchpad_server.Controller
 
         public void Zoom(int value)
         {
-            _keyBoardController.PushKey(0x11, 0x9d);
+            _keyBoardController.PushKey(0x11, 0);
             _mouseController.Scroll(value);
-            _keyBoardController.ReleaseKey(0x11, 0x9d);
+            _keyBoardController.ReleaseKey(0x11, 0);
         }
 
         private void StartSwitch()
