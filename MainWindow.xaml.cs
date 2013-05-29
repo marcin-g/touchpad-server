@@ -105,7 +105,7 @@ namespace touchpad_server
                     connection.CloseNotBinded();
                     connection.CloseBinded();
                 }
-                catch (SocketException)
+                catch (Exception)
                 {
                 }
 
