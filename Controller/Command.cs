@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace touchpad_server.Controller
 {
@@ -47,9 +50,22 @@ namespace touchpad_server.Controller
 
         public void Zoom(int value)
         {
-            _keyBoardController.PushKey(0x11, 0);
-            _mouseController.Scroll(value);
-            _keyBoardController.ReleaseKey(0x11, 0);
+           // System.Windows.Threading.Dispatcher.Run();
+                    
+            _mouseController.Zoom(value);
+            Dispatcher.CurrentDispatcher.Invoke(new Action(() =>
+                {
+
+                    
+                    /*
+                    SendKeys.SendWait("CTRL down");
+                    //_keyBoardController.PushKey(0x11, 0);
+                    _mouseController.Scroll(value);
+
+                    SendKeys.SendWait("CTRL up");
+                    //_keyBoardController.ReleaseKey(0x11, 0);*/
+                }));
+
         }
 
         private void StartSwitch()

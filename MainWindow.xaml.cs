@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using touchpad_server.Controller;
 using touchpad_server.IO;
 
@@ -130,5 +131,19 @@ namespace touchpad_server
                 window.Show();
             }));
         }
+       /* protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            HwndSource source = PresentationSource.FromVisual(this) as HwndSource;
+            source.AddHook(WndProc);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            // Handle messages...
+
+            handled = true;
+            return IntPtr.Zero;
+        }*/
     }
 }

@@ -116,6 +116,36 @@ namespace touchpad_server.Controller
             SendInput(1, ref mouseDownInput, Marshal.SizeOf(new INPUT()));
         }
 
+        public void Zoom(int val)
+        {
+            INPUT inputs = new INPUT();
+            inputs.type = SendInputEventType.InputKeyboard;
+
+            KEYBDINPUT kb = new KEYBDINPUT(); //{0};
+            // generate down 
+         /*   if (bExtended)
+                kb.dwFlags = KEYEVENTF_EXTENDEDKEY;*/
+
+            kb.wVk = (ushort)0x11;
+            kb.time = 0;
+            inputs.mkhi.ki = kb;
+            SendInput(1, ref inputs, System.Runtime.InteropServices.Marshal.SizeOf(inputs));
+
+            this.Scroll(val);
+            // generate up 
+            //ZeroMemory(&kb, sizeof(KEYBDINPUT));
+            //ZeroMemory(&inputs,sizeof(inputs));
+            kb.dwFlags = 0x0002;
+           /* if (bExtended)
+                kb.dwFlags |= KEYEVENTF_EXTENDEDKEY;*/
+
+            kb.wVk = (ushort)0x11;
+            kb.time = 0;
+            inputs.type =  SendInputEventType.InputKeyboard;
+            inputs.mkhi.ki = kb;
+            SendInput(1, ref inputs, System.Runtime.InteropServices.Marshal.SizeOf(inputs));
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct HARDWAREINPUT
         {
@@ -134,10 +164,10 @@ namespace touchpad_server.Controller
         [StructLayout(LayoutKind.Sequential)]
         private struct KEYBDINPUT
         {
-            public readonly ushort wVk;
+            public ushort wVk;
             public readonly ushort wScan;
-            public readonly uint dwFlags;
-            public readonly uint time;
+            public uint dwFlags;
+            public uint time;
             public readonly IntPtr dwExtraInfo;
         }
 
@@ -173,9 +203,9 @@ namespace touchpad_server.Controller
         {
             [FieldOffset(0)] public MouseInputData mi;
 
-            [FieldOffset(0)] public readonly KEYBDINPUT ki;
+            [FieldOffset(0)] public  KEYBDINPUT ki;
 
-            [FieldOffset(0)] public readonly HARDWAREINPUT hi;
+            [FieldOffset(0)] public  HARDWAREINPUT hi;
         }
 
         [StructLayout(LayoutKind.Sequential)]
