@@ -10,7 +10,7 @@ namespace touchpad_server.Controller
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern IntPtr GetForegroundWindow();
         [DllImport("user32.dll")]
-        public static extern int SendMessage(int hWnd, uint Msg, int wParam, int lParam);
+        public static extern int SendMessage(int hWnd, IntPtr msg, int wParam, int lParam);
 
         public const int WM_SYSCOMMAND = 0x0112;
         public const int SC_CLOSE = 0xF060;
@@ -28,7 +28,7 @@ namespace touchpad_server.Controller
                 Logger.Log("Active Window " + window);
                 
             }
-            SendMessage((int)window, WM_SYSCOMMAND, SC_CLOSE, 0);
+            SendMessage((int)window, (IntPtr) WM_SYSCOMMAND, SC_CLOSE, 0);
         }
     }
 }
