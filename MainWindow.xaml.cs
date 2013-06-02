@@ -27,6 +27,15 @@ namespace touchpad_server
         public MainWindow()
         {
             InitializeComponent();
+            System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
+            ni.Icon = new System.Drawing.Icon("Tray.ico");
+            ni.Visible = true;
+            ni.DoubleClick +=
+                delegate(object sender, EventArgs args)
+                {
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
+                };
             myInstance = this;
             worker.DoWork += worker_DoWork;
             worker.RunWorkerCompleted += worker_RunWorkerCompleted;
@@ -130,6 +139,15 @@ namespace touchpad_server
                 window.qrControl.Text = qrString;
                 window.Show();
             }));
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Minimized && IsVisible)
+            {
+                this.Hide();
+            }
+           // base.OnStateChanged(e);
         }
        /* protected override void OnSourceInitialized(EventArgs e)
         {

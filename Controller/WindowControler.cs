@@ -44,7 +44,7 @@ namespace touchpad_server.Controller
                 Process p=Process.GetProcessById((int)i);
                 if (p != null)
                 {
-                    if (p.ProcessName == "explorer")
+                    if (p.ProcessName.ToLower() == "explorer")
                     {
                         SendKeys.SendWait("%{F4}");
                     }

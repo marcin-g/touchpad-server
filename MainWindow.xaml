@@ -4,7 +4,7 @@
         xmlns:networkInformation="clr-namespace:System.Net.NetworkInformation;assembly=System"
         Title="MainWindow"
         SizeToContent="WidthAndHeight"
-        Closing="MainWindow_OnClosing">
+        Closing="MainWindow_OnClosing" StateChanged="Window_StateChanged">
     <StackPanel Orientation="Vertical">
         <Grid Width="200">
             <Grid.ColumnDefinitions>
