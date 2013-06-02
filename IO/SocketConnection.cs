@@ -16,16 +16,25 @@ namespace touchpad_server.IO
         private readonly IPEndPoint localEP;
         private Socket Listener;
         private static Dictionary<SocketConnection,Thread> connections = new Dictionary<SocketConnection,Thread> ();
-        private static int ConnectionPort=11000;
+        private static int _connectionPort=11000;
         private static readonly ManualResetEvent connectedLock = new ManualResetEvent(false);
+        private static bool connectionsCreated = false;
+        private static int clients = 0;
 
         public SocketConnection(IPAddress address, int port)
         {
             localEP = new IPEndPoint(address, port);
         }
 
+        public static int ConnectionPort
+        {
+            get { return _connectionPort; }
+            set { _connectionPort = value; }
+        }
+
         public static string CreateConnection()
         {
+            connectionsCreated = true;
             connectedLock.Reset();
             List<IPAddress> ips = new List<IPAddress>();
             foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
@@ -66,6 +75,10 @@ namespace touchpad_server.IO
         }
         public static void CloseOtherConnections(SocketConnection notClosed)
         {
+            if (!connectionsCreated)
+            {
+                return;
+            }
             Thread notClosedThread = null;
             if (notClosed != null)
             {
@@ -86,12 +99,15 @@ namespace touchpad_server.IO
                     }
                 }
             }
+
+            clients = connections.Count - 1;
             connections.Clear();
             if (notClosed != null)
             {
                 connections.Add(notClosed, notClosedThread);
             }
             connectedLock.Set();
+            connectionsCreated = false;
         }
         public static SocketConnection GetConnectedSocket()
         {
@@ -143,11 +159,12 @@ namespace touchpad_server.IO
             // Get the socket that handles the client request.
             try
             {
-
                 var listener = (Socket) ar.AsyncState;
                 Socket handler = listener.EndAccept(ar);
                 Logger.Log("Accept Connection");
                 SocketConnection.CloseOtherConnections(this);
+                clients++;
+                MainWindow.ClientsNumber(clients);
                 //Console.WriteLine("Accept Connection");
                 // Signal the main thread to continue.
                 allDone.Set();
@@ -161,7 +178,7 @@ namespace touchpad_server.IO
             {
                 Logger.Log("Closing the listener...");
                 Logger.Log(e.ToString());
-                allDone.Set();
+                MainWindow.ClientsNumber(clients);
             }
         }
 
@@ -178,6 +195,8 @@ namespace touchpad_server.IO
             }
             catch (SocketException)
             {
+                allDone.Set();
+                clients--;
                 Logger.Log("Zamknieto połączenie");
                 handler.Close();
             }

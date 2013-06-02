@@ -89,7 +89,10 @@ namespace touchpad_server.Controller
 
         public void EndProcessing()
         {
-            _mainThread.Abort();
+            if (_mainThread != null)
+            {
+                _mainThread.Abort();
+            }
         }
 
         private static void ProcessFrame(StandardFrame frame)

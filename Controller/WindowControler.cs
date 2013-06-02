@@ -76,7 +76,7 @@ namespace touchpad_server.Controller
             SysListView32
         }
 
-        public static IntPtr GetDesktopWindow(DesktopWindow desktopWindow)
+        public IntPtr GetDesktopWindow(DesktopWindow desktopWindow)
         {
             IntPtr _ProgMan = GetShellWindow();
             IntPtr _SHELLDLL_DefViewParent = _ProgMan;

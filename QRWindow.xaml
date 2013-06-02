@@ -1,10 +1,9 @@
 ﻿<Window x:Class="touchpad_server.QRWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-       
         xmlns:wpf2="clr-namespace:Gma.QrCodeNet.Encoding.Windows.WPF;assembly=Gma.QrCodeNet.Encoding"
         Title="QRWindow" Height="500" Width="500">
-    <Grid Name="QRGrid" Loaded="QRGrid_OnLoaded">
+    <Grid Name="QRGrid">
         <Grid.RowDefinitions>
             <RowDefinition/>
         </Grid.RowDefinitions>
@@ -13,6 +12,6 @@
         </Grid.ColumnDefinitions>
         <!--Button Content="elo" DockPanel.Dock="Top" Click="ButtonBase_OnClick"></Button-->
         <!--Image Name="mainImage"></Image-->
-        <wpf2:QrCodeImgControl Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" Name="qrControl" VerticalAlignment="Stretch" Height="Auto" Width="Auto" Text="1" QuietZoneModule="Zero" IsGrayImage="False" LightColor="White" DarkColor="Black" />
+        <wpf2:QrCodeImgControl Name="qrControl"  Text="1" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Margin="0" VerticalAlignment="Stretch" Height="Auto" Width="Auto" QuietZoneModule="Zero" IsGrayImage="False" LightColor="White" DarkColor="Black" />
         </Grid>
 </Window>

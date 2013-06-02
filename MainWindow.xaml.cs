@@ -14,19 +14,22 @@ namespace touchpad_server
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public static MainWindow myInstance;
         private readonly FrameInterpreter interpreter = new FrameInterpreter();
         private readonly BackgroundWorker worker = new BackgroundWorker();
         private SocketConnection connection;
         private string qrString;
-        private object workerLock=new object();
-        QRWindow window=new QRWindow();
+        QRWindow window;
+        private PortWindow portWindow = new PortWindow();
+        private bool started = false;
 
         public MainWindow()
         {
-            InitializeComponent();
+
+            worker.DoWork += new DoWorkEventHandler(worker_DoWork);
+            worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(worker_RunWorkerCompleted);
             System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
             ni.Icon = new System.Drawing.Icon("Tray.ico");
             ni.Visible = true;
@@ -37,14 +40,8 @@ namespace touchpad_server
                     this.WindowState = WindowState.Normal;
                 };
             myInstance = this;
-            worker.DoWork += worker_DoWork;
-            worker.RunWorkerCompleted += worker_RunWorkerCompleted;
-            interpreter.BeginProccessing();
-            foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                NetworkCombo.Items.Add(nic.Name);
-            }
-            worker.RunWorkerAsync();
+            InitializeComponent();
+            window=new QRWindow();
         }
 
         private void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -56,10 +53,12 @@ namespace touchpad_server
         {
             try
             {
+                interpreter.BeginProccessing();
                 qrString = SocketConnection.CreateConnection();
 
                 myInstance.Dispatcher.Invoke(new Action(delegate()
-                    {
+                {
+                    window = new QRWindow();
                         window.qrControl.Text = qrString;
                         window.Show();
                     }));
@@ -74,40 +73,41 @@ namespace touchpad_server
         }
 
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void Start_Click(object sender, RoutedEventArgs e)
         {
-            int i = 0;
-            if (Int32.TryParse(PortText.Text, out i) && AddressCombo.SelectedValue != null)
+            if (!started)
             {
-                connection = new SocketConnection((IPAddress) AddressCombo.SelectedValue, Int32.Parse(PortText.Text));
+                started = true;
                 worker.RunWorkerAsync();
+                StartButton.Content = "Stop";
             }
-        }
-
-        private void NetworkCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            AddressCombo.Items.Clear();
-            if (NetworkCombo.SelectedIndex >= 0)
+            else
             {
-                foreach (
-                    IPAddressInformation unicast in
-                        NetworkInterface.GetAllNetworkInterfaces()[NetworkCombo.SelectedIndex].GetIPProperties()
-                                                                                              .UnicastAddresses)
+                if (connection != null)
                 {
-                    AddressCombo.Items.Add(unicast.Address);
-                }
-            }
-        }
+                    try
+                    {
+                        connection.CloseNotBinded();
+                        connection.CloseBinded(); 
+                    }
+                    catch (Exception)
+                    {
+                    }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-        {
-            connection.CloseNotBinded();
-            Logger.CloseLogFile();
+                }
+                else
+                {
+                    SocketConnection.CloseOtherConnections(null);
+                }
+                Logger.CloseLogFile();
+                StartButton.Content = "Start";
+                QrButton.IsEnabled = false;
+                started = false;
+            }
         }
 
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
-
             if (connection != null)
             {
                 try
@@ -129,6 +129,8 @@ namespace touchpad_server
                 interpreter.EndProcessing();
             }
             Logger.CloseLogFile();
+            window.Close();
+            portWindow.Close();
         }
 
         private void QrCode_Click(object sender, RoutedEventArgs e)
@@ -147,7 +149,16 @@ namespace touchpad_server
             {
                 this.Hide();
             }
-           // base.OnStateChanged(e);
+            else
+            {
+                base.OnStateChanged(e);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            portWindow=new PortWindow();
+            portWindow.ShowDialog();
         }
        /* protected override void OnSourceInitialized(EventArgs e)
         {
@@ -163,5 +174,13 @@ namespace touchpad_server
             handled = true;
             return IntPtr.Zero;
         }*/
+
+        public static void ClientsNumber(int clients)
+        {
+            myInstance.Dispatcher.Invoke(new Action(delegate
+                {
+                    myInstance.ClientsLabel.Content = clients;
+                }));
+        }
     }
 }

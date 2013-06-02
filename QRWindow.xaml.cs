@@ -1,20 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Gma.QrCodeNet.Encoding;
-using Gma.QrCodeNet.Encoding.Windows.Render;
-using Gma.QrCodeNet.Encoding.Windows.WPF;
-using touchpad_server.IO;
+
+
 
 namespace touchpad_server
 {
@@ -25,7 +12,15 @@ namespace touchpad_server
     {
         public QRWindow()
         {
-            InitializeComponent();
+           // qrControl.Text = "1";
+            try
+            {
+
+                InitializeComponent();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void QRGrid_OnLoaded(object sender, RoutedEventArgs e)
