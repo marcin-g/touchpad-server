@@ -150,10 +150,10 @@ namespace touchpad_server
             {
                 this.Hide();
             }
-            else
+           /* else
             {
                 base.OnStateChanged(e);
-            }
+            }*/
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
