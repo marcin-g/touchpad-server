@@ -128,8 +128,9 @@ namespace touchpad_server
             {
                 interpreter.EndProcessing();
             }
-                window.Close();
-                portWindow.Close();
+            window.Close();
+                //portWindow.Close();
+            portWindow.Close();
             Application.Current.Shutdown();
         }
 

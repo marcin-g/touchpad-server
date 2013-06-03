@@ -14,8 +14,8 @@
         </Grid.ColumnDefinitions>
         <Label Grid.ColumnSpan="2" Grid.Row="0" Content="Opcje" FontSize="24" HorizontalAlignment="Center"></Label>
         <Label Grid.Column="0" Grid.Row="1" Content="Port:" VerticalAlignment="Center" ></Label>
-        <TextBox Grid.Column="1" Grid.Row="1" Margin="20" Name="PortText"></TextBox>
-        <Button Content="ok"  Margin="20" Grid.Row="2" Grid.Column="0" Click="Button_Click_1"/>
-        <Button Content="anuluj"  Margin="20" Grid.Row="2" Grid.Column="1" Click="Button_Click"/>
+        <TextBox Grid.Column="1" Grid.Row="1" Margin="15" Name="PortText" ></TextBox>
+        <Button Content="ok"  Margin="15" Grid.Row="2" Grid.Column="0" Click="Button_Click_1"/>
+        <Button Content="anuluj"  Margin="15" Grid.Row="2" Grid.Column="1" Click="Button_Click"/>
     </Grid>
 </Window>
