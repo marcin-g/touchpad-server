@@ -14,7 +14,6 @@ namespace touchpad_server.Controller
         private static int counter;
         private Thread _mainThread;
         private bool _process;
-        Stopwatch sw=new Stopwatch();
 
         public FrameInterpreter()
         {
@@ -53,8 +52,6 @@ namespace touchpad_server.Controller
             {
                 while (true)
                 {
-                    sw.Reset();
-                    sw.Start();
                     StandardFrame tmpFrame = null;
                     Monitor.Enter(_bufforLock);
                     try
@@ -74,8 +71,6 @@ namespace touchpad_server.Controller
                         Monitor.Exit(_bufforLock);
                         if (tmpFrame != null)
                         {
-                            sw.Stop();
-                            Logger.LogTime("BEGIN_PROCESS " + sw.ElapsedTicks);
                             ProcessFrame(tmpFrame);
                         }
                     }

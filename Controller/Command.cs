@@ -12,15 +12,10 @@ namespace touchpad_server.Controller
         private readonly KeyboardController _keyBoardController = new KeyboardController();
         private readonly MouseController _mouseController = new MouseController();
         private readonly WindowControler _windowControler = new WindowControler();
-        Stopwatch watch = new Stopwatch();
 
         public void MoveCursor(int offsetX, int offsetY)
         {
-            watch.Reset();
-            watch.Start();
             _mouseController.Move(offsetX, offsetY);
-            watch.Stop();
-            Logger.LogTime("MOVE " + watch.ElapsedTicks);
         }
 
         public void LeftClick()

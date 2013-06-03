@@ -27,7 +27,7 @@ namespace touchpad_server
 
         public MainWindow()
         {
-
+            App.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             worker.DoWork += new DoWorkEventHandler(worker_DoWork);
             worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(worker_RunWorkerCompleted);
             System.Windows.Forms.NotifyIcon ni = new System.Windows.Forms.NotifyIcon();
@@ -128,9 +128,9 @@ namespace touchpad_server
             {
                 interpreter.EndProcessing();
             }
-            Logger.CloseLogFile();
-            window.Close();
-            portWindow.Close();
+                window.Close();
+                portWindow.Close();
+            Application.Current.Shutdown();
         }
 
         private void QrCode_Click(object sender, RoutedEventArgs e)

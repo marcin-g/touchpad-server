@@ -99,22 +99,32 @@ namespace touchpad_server.IO
                     }
                 }
             }
-
             clients = connections.Count - 1;
+            if (notClosed == null)
+            {
+                clients = 0;
+            }
             connections.Clear();
             if (notClosed != null)
             {
                 connections.Add(notClosed, notClosedThread);
             }
-            connectedLock.Set();
             connectionsCreated = false;
+            connectedLock.Set();
         }
+
         public static SocketConnection GetConnectedSocket()
         {
             connectedLock.WaitOne();
+            if (connections.Count != 0)
+            {
+            
             IEnumerator enumerator = connections.Keys.GetEnumerator();
             enumerator.MoveNext();
             return (SocketConnection) enumerator.Current;
+            }
+            return null;
+
         }
 
         public void StartListening()
@@ -220,19 +230,12 @@ namespace touchpad_server.IO
                     }
 
                     state.BrokenFrame = null;
-                    state.sw.Stop();
-                    Logger.LogTime("BEFORE_ADDFRAME " + state.sw.ElapsedTicks);
-                    state.sw.Reset();
-                    state.sw.Start();
                     FrameInterpreter.AddFrame(new StandardFrame(type, tmp));
-                    state.sw.Stop();
-                    Logger.LogTime("ADDFRAME " + state.sw.ElapsedTicks);
 
                 }
 
                 for (int i = startIndex; i < read;)
                 {
-                    state.sw.Reset();
                     //Logger.Log((string)read.ToString("G"));
                     StandardFrame frame = null;
                     var type = (FrameType) (state.Buffer[i]);
@@ -250,23 +253,13 @@ namespace touchpad_server.IO
                             Array.Copy(state.Buffer, i + 1, tmp, 0, type.GetSize() - 1);
                             frame = new StandardFrame(type, tmp);
 
-                            Logger.LogTime("BEFORE_ADDFRAME " + state.sw.ElapsedTicks);
-                            state.sw.Reset();
-                            state.sw.Start();
                             FrameInterpreter.AddFrame(frame);
-                            state.sw.Stop();
-                            Logger.LogTime("ADDFRAME " + state.sw.ElapsedTicks);
                         }
                     }
                     else
                     {
                         frame = new StandardFrame(type, null);
-                        Logger.LogTime("BEFORE_ADDFRAME " + state.sw.ElapsedTicks);
-                        state.sw.Reset();
-                        state.sw.Start();
                         FrameInterpreter.AddFrame(frame);
-                        state.sw.Stop();
-                        Logger.LogTime("ADDFRAME " + state.sw.ElapsedTicks);
                     }
 
                     i += type.GetSize();
@@ -296,6 +289,7 @@ namespace touchpad_server.IO
             //Listener.Shutdown(SocketShutdown.Receive);
             //Listener.Disconnect(false);
             Listener.Close();
+            allDone.Set();
         }
         //CloseNotBinded not binded socket
         public void CloseBinded()
