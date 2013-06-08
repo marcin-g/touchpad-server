@@ -80,9 +80,11 @@ namespace touchpad_server
                 started = true;
                 worker.RunWorkerAsync();
                 StartButton.Content = "Stop";
+                QrButton.IsEnabled = true;
             }
             else
             {
+                QrButton.IsEnabled = false;
                 if (connection != null)
                 {
                     try

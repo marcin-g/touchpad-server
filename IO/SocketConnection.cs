@@ -99,7 +99,7 @@ namespace touchpad_server.IO
                     }
                 }
             }
-            clients = connections.Count - 1;
+          //  clients = connections.Count - 1;
             if (notClosed == null)
             {
                 clients = 0;
@@ -208,6 +208,7 @@ namespace touchpad_server.IO
                 allDone.Set();
                 clients--;
                 Logger.Log("Zamknieto połączenie");
+                MainWindow.ClientsNumber(clients);
                 handler.Close();
             }
 
@@ -271,6 +272,7 @@ namespace touchpad_server.IO
             else
             {
                 Logger.Log("Zamknieto połączenie");
+                
                 /* if (state.sb.Length > 1)
                 {
                     // All the data has been read from the client;

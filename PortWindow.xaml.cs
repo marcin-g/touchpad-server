@@ -12,6 +12,7 @@ namespace touchpad_server
         public PortWindow()
         {
             InitializeComponent();
+            PortText.Text = SocketConnection.ConnectionPort.ToString();
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
